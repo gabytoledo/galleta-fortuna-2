@@ -1,0 +1,97 @@
+1. Importar galleta_fortuna.sql en phpMyAdmin
+2. Copiar proyecto en htdocs
+3. Abrir localhost/galleta_fortuna/public
+4. Usuario admin:
+   email: lookintoledo@gmail.com
+   contraseña: 1234
+
+(contraseña implementada antes de las validaciones de seguridad)
+
+hecho por Gabriel Toledo
+
+
+Tecnologías utilizadas
+- PHP 8
+- Programación orientada a objetos (POO)
+- Arquitectura en capas
+- PDO (PHP Data Objects)
+- MySQL
+- phpMyAdmin
+- HTML5
+- CSS3
+- XAMPP
+- Apache Server
+- Sesiones PHP
+- Validaciones backend
+- CRUD
+
+
+
+El sistema fue desarrollado utilizando PHP 8 bajo un enfoque de programación orientada a objetos y arquitectura en capas. Para la persistencia de datos se utilizó MySQL junto con PDO (PHP Data Objects), permitiendo una conexión segura y desacoplada con la base de datos.
+
+La interfaz fue construida utilizando HTML5 y CSS3. El entorno de ejecución local utilizado fue XAMPP, incorporando Apache Server y phpMyAdmin para la administración de la base de datos.
+
+El sistema implementa manejo de sesiones,validaciones backend, autenticación de usuarios, control de roles y operaciones CRUD para la administración de mensajes y usuarios administradores.
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+V2.1.0
+
+-animaciones y mejoras en el css agregadas
+
+WARNING AVISO : SI LAS ANIMACIONES NO SE MUEVEN CTRL + F5 (por si quedo cacheado el css anterior en tu pc)
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+V 2.0.0
+
+# Galleta de la Fortuna Pro
+
+Galleta de la Fortuna Pro es una aplicación web desarrollada como evolución del proyecto original de la materia. El sistema permite a los usuarios registrarse, iniciar sesión y descubrir mensajes de sabiduría seleccionados aleatoriamente desde una base de datos persistente.
+
+Además de la funcionalidad principal del juego, la aplicación incorpora autenticación de usuarios, control de roles, historial de aperturas de galletas, registro de auditoría de eventos críticos, consumo de una API externa de clima y herramientas administrativas para la gestión del sistema.
+
+El proyecto fue desarrollado siguiendo principios de Programación Orientada a Objetos (POO) y una arquitectura en capas basada en Controladores, Servicios, Repositorios y Modelos, permitiendo una estructura organizada, mantenible y escalable.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"No gods or kings, only man"
