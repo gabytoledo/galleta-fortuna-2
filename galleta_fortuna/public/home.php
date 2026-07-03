@@ -41,8 +41,6 @@ unset($_SESSION["clima_fortuna"]);
 
 
 
-
-
 <br><br>
 
 <a href="subir_galleta.php">
@@ -70,6 +68,12 @@ unset($_SESSION["clima_fortuna"]);
 <a href="mis_estadisticas.php">
     Ver mis estadísticas
 </a>
+<br><br>
+
+<a href="mis_favoritas.php">
+    Ver mis favoritas
+</a>
+
 
 <br><br>
 <a href="logout.php">

@@ -101,4 +101,20 @@ class HistorialRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public function obtenerDiasConAperturas(int $usuarioId): array
+{
+    $sql = "SELECT DISTINCT DATE(fecha_apertura) AS fecha
+            FROM historial_galletas
+            WHERE usuario_id = :usuario_id
+            ORDER BY fecha DESC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ":usuario_id" => $usuarioId
+    ]);
+
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
 }

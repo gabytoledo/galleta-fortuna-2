@@ -36,6 +36,31 @@ $clima = $_SESSION["clima_fortuna"] ?? "";
     "<?php echo htmlspecialchars($mensaje); ?>"
 </p>
 
+<?php if (!empty($fecha) && $mensaje !== "🥠 Tu fortuna está esperando..." && $mensaje !== "Todavía no abriste ninguna galleta."): ?>
+
+    <form id="formFavorito" action="guardar_favorito.php" method="POST" style="display:none;">
+    <input
+        type="hidden"
+        name="mensaje"
+        id="mensajeFavorito"
+        value=""
+    >
+
+    <button type="submit">
+        ❤️ Guardar favorita
+    </button>
+    <button
+    type="button"
+    id="btnCompartir"
+    style="display:none;"
+>
+    📤 Compartir fortuna
+</button>
+</form>
+
+
+<?php endif; ?>
+
 <p id="fechaFortuna">
     <?php if (!empty($fecha)): ?>
         <strong>Fecha y hora de apertura:</strong><br>
@@ -135,7 +160,9 @@ document.getElementById("btnAbrirGalleta").addEventListener("click", function ()
 
 mensaje.style.transition = "opacity 0.5s ease";
 mensaje.style.opacity = "0";
-
+document.getElementById("mensajeFavorito").value = data.mensaje;
+document.getElementById("formFavorito").style.display = "block";
+document.getElementById("btnCompartir").style.display = "inline-block";
 setTimeout(function () {
 
 
@@ -190,6 +217,34 @@ mensaje.style.opacity = "1";
     } else {
         enviarPeticion();
     }
+
+});
+
+document.getElementById("btnCompartir").addEventListener("click", function(){
+
+    const mensaje =
+        document.getElementById("mensajeFortuna")
+        .innerText
+        .replace(/"/g,"");
+
+    const texto =
+`🥠 Mi fortuna de hoy
+
+"${mensaje}"
+
+Generado con Galleta Fortuna Pro`;
+
+    navigator.clipboard.writeText(texto)
+        .then(function(){
+
+            alert("✅ ¡Fortuna copiada al portapapeles!");
+
+        })
+        .catch(function(){
+
+            alert("No fue posible copiar la fortuna.");
+
+        });
 
 });
 </script>
