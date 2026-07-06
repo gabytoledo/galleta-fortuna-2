@@ -247,9 +247,7 @@ Proyecto desarrollado como trabajo final para la materia **Producción Web**, ap
 
 ![Admin](galleta_fortuna/assets/screenshots/admin.png)
 
-## Dashboard
 
-![Dashboard](galleta_fortuna/assets/screenshots/dashboard.png)
 
 ## Mi Perfil
 
