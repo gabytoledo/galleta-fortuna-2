@@ -31,7 +31,7 @@ $contenidoLogs = $_SESSION["contenido_logs"] ?? "No hay logs para mostrar.";
 
     <br><br>
 
-   <a href="index.php?page=home">
+   <a href="home.php">Volver al inicio</a>
 
     <br><br>
 

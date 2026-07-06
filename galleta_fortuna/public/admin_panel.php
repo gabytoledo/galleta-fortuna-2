@@ -24,9 +24,9 @@ $galletas = $fortuneService->obtenerTodasLasGalletas();
     🌙
 </button>
 <div class="container">
-
+<br>
     <h1>Panel de Administración</h1>
-
+<br>
     <?php if (isset($_SESSION["admin_success"])): ?>
         <p style="color:green;font-weight:bold;">
             <?php echo htmlspecialchars($_SESSION["admin_success"]); ?>
