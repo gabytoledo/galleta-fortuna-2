@@ -14,6 +14,9 @@ $contenidoLogs = $_SESSION["contenido_logs"] ?? "No hay logs para mostrar.";
     <title>Logs del sistema</title>
 </head>
 <body class="historial-page">
+    <button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
 
 <div class="container">
 
@@ -35,6 +38,57 @@ $contenidoLogs = $_SESSION["contenido_logs"] ?? "No hay logs para mostrar.";
     <a href="logout.php">Cerrar sesión</a>
 
 </div>
+
+<script>
+const darkToggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
+
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
+});
+
+
+</script>
+
+
+
+
+
+
+
+<script src="js/toast.js"></script>
+
+<?php if (isset($_SESSION["toast_success"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_success"]); ?>,
+    "success"
+);
+</script>
+<?php unset($_SESSION["toast_success"]); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["toast_error"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_error"]); ?>,
+    "error"
+);
+</script>
+<?php unset($_SESSION["toast_error"]); ?>
+<?php endif; ?>
 
 </body>
 </html>

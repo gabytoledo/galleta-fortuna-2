@@ -25,7 +25,9 @@ unset($_SESSION["clima_fortuna"]);
     <link rel="icon" type="image/x-icon" href="favicon.jpg">
 </head>
 <body>
-
+<button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
 <div class="container">
 
 
@@ -61,6 +63,12 @@ unset($_SESSION["clima_fortuna"]);
 
 <br><br>
 
+<a href="ranking.php">
+    Ver ranking de usuarios
+</a>
+
+<br><br>
+
 <a href="historial_galletas.php">
     Ver historial de galletas
 </a>
@@ -69,6 +77,13 @@ unset($_SESSION["clima_fortuna"]);
     Ver mis estadísticas
 </a>
 <br><br>
+
+<a href="mi_perfil.php">
+    Ver mi perfil
+</a>
+
+<br><br>
+
 
 <a href="mis_favoritas.php">
     Ver mis favoritas
@@ -80,6 +95,49 @@ unset($_SESSION["clima_fortuna"]);
     Cerrar sesión
 </a>
 </div>
+<script>
+const darkToggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
+
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
+});
+</script>
+
+<script src="js/toast.js"></script>
+
+
+<?php if (isset($_SESSION["toast_success"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_success"]); ?>,
+    "success"
+);
+</script>
+<?php unset($_SESSION["toast_success"]); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["toast_error"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_error"]); ?>,
+    "error"
+);
+</script>
+<?php unset($_SESSION["toast_error"]); ?>
+<?php endif; ?>
 
 </body>
 </html>

@@ -117,4 +117,25 @@ class HistorialRepository
 
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
+
+public function obtenerActividadUltimosDias(int $usuarioId, int $dias = 30): array
+{
+    $sql = "SELECT 
+                DATE(fecha_apertura) AS fecha,
+                COUNT(*) AS total
+            FROM historial_galletas
+            WHERE usuario_id = :usuario_id
+              AND fecha_apertura >= DATE_SUB(CURDATE(), INTERVAL :dias DAY)
+            GROUP BY DATE(fecha_apertura)
+            ORDER BY fecha ASC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(":usuario_id", $usuarioId, PDO::PARAM_INT);
+    $stmt->bindValue(":dias", $dias, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
 }

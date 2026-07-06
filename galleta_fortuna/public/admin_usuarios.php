@@ -100,6 +100,6 @@ $usuarios = $userService->obtenerTodosLosUsuarios();
     <a href="admin_panel.php">Volver al panel</a>
 
 </div>
-
+<script src="js/toast.js"></script>
 </body>
 </html>

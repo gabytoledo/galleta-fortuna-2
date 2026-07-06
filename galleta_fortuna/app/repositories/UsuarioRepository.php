@@ -76,4 +76,21 @@ class UsuarioRepository
             ":id" => $id
         ]);
     }
+
+    public function obtenerPorId(int $id): ?array
+{
+    $sql = "SELECT id, nombre, email, rol FROM usuarios WHERE id = :id LIMIT 1";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ":id" => $id
+    ]);
+
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $usuario ?: null;
+}
+
+
+
 }

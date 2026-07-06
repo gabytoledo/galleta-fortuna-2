@@ -1,11 +1,6 @@
 <?php
 require_once __DIR__ . "/../app/core/SessionManager.php";
-SessionManager::start();
-
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.php");
-    exit;
-}
+SessionManager::requireLogin();
 
 $mensaje = $_SESSION["mensaje_fortuna"] ?? "Todavía no abriste ninguna galleta.";
 $fecha = $_SESSION["fecha_fortuna"] ?? "";
@@ -13,9 +8,9 @@ $clima = $_SESSION["clima_fortuna"] ?? "";
 ?>
 
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.jpg">
     <link rel="stylesheet" href="css/style.css">
     <meta charset="UTF-8">
@@ -23,82 +18,119 @@ $clima = $_SESSION["clima_fortuna"] ?? "";
 </head>
 <body>
 
+<button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
+
 <div class="container">
 
+    <h1>Tu mensaje de la fortuna</h1>
 
-<h1>Tu mensaje de la fortuna</h1>
+    <div id="galletaAnimada" class="cookie-animation">
+        🥠
+    </div>
 
-<div id="galletaAnimada" class="cookie-animation">
-    🥠
-</div>
+    <p class="mensaje" id="mensajeFortuna">
+        "<?php echo htmlspecialchars($mensaje); ?>"
+    </p>
 
-<p class="mensaje" id="mensajeFortuna">
-    "<?php echo htmlspecialchars($mensaje); ?>"
-</p>
+<form
+    id="formFavorito"
+    action="guardar_favorito.php"
+    method="POST"
+    <?php echo empty($fecha) ? 'style="display:none;"' : ''; ?>
+>
 
-<?php if (!empty($fecha) && $mensaje !== "🥠 Tu fortuna está esperando..." && $mensaje !== "Todavía no abriste ninguna galleta."): ?>
-
-    <form id="formFavorito" action="guardar_favorito.php" method="POST" style="display:none;">
     <input
         type="hidden"
         name="mensaje"
         id="mensajeFavorito"
-        value=""
+        value="<?php echo htmlspecialchars($mensaje); ?>"
     >
 
     <button type="submit">
         ❤️ Guardar favorita
     </button>
-    <button
-    type="button"
-    id="btnCompartir"
-    style="display:none;"
->
-    📤 Compartir fortuna
-</button>
+
 </form>
-
-
-<?php endif; ?>
-
-<p id="fechaFortuna">
-    <?php if (!empty($fecha)): ?>
-        <strong>Fecha y hora de apertura:</strong><br>
-        <?php echo htmlspecialchars($fecha); ?>
-    <?php endif; ?>
-</p>
-
-<div class="weather-box" id="weatherBox" <?php echo empty($clima) ? 'style="display:none;"' : ''; ?>>
-    <strong>Clima actual</strong>
-    <p class="weather-info" id="climaFortuna">
-        <?php echo htmlspecialchars($clima); ?>
-    </p>
-</div>
-
-<form id="formGalleta">
-    <button type="button" id="btnAbrirGalleta">
-        ABRIR OTRA GALLETA
-    </button>
-</form>
-
-<p id="loadingText" style="display:none;">
-    Abriendo tu galleta...
-</p>
 
 <br>
 
-<a href="home.php">
-    Volver al inicio
-</a>
-<br><br>
+<button
+    type="button"
+    id="btnCompartir"
+    <?php echo empty($fecha) ? 'style="display:none;"' : ''; ?>
+>
+    📤 Compartir fortuna
+</button>
 
-<a href="logout.php">Cerrar sesión</a>
+<p id="fechaFortuna">
+        <?php if (!empty($fecha)): ?>
+            <strong>Fecha y hora de apertura:</strong><br>
+            <?php echo htmlspecialchars($fecha); ?>
+        <?php endif; ?>
+    </p>
 
+    <div class="weather-box" id="weatherBox" <?php echo empty($clima) ? 'style="display:none;"' : ''; ?>>
+        <strong>Clima actual</strong>
+        <p class="weather-info" id="climaFortuna">
+            <?php echo htmlspecialchars($clima); ?>
+        </p>
+    </div>
+
+    <form id="formGalleta">
+        <button type="button" id="btnAbrirGalleta">
+            ABRIR OTRA GALLETA
+        </button>
+    </form>
+
+    <p id="loadingText" style="display:none;">
+        Abriendo tu galleta...
+    </p>
+
+    <br>
+
+    <a href="home.php">Volver al inicio</a>
+
+    <br><br>
+
+    <a href="logout.php">Cerrar sesión</a>
 
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script>
-document.getElementById("btnAbrirGalleta").addEventListener("click", function () {
+function mostrarToast(mensaje)
+{
+    const toast = document.getElementById("toast");
+
+    if (!toast) {
+        return;
+    }
+
+    toast.innerText = mensaje;
+    toast.classList.add("show");
+
+    setTimeout(function(){
+        toast.classList.remove("show");
+    }, 3000);
+}
+
+function lanzarConfetti(cantidad = 120)
+{
+    if (typeof confetti === "function") {
+        confetti({
+            particleCount: cantidad,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
+}
+
+const botonAbrir = document.getElementById("btnAbrirGalleta");
+
+botonAbrir.addEventListener("click", function () {
 
     const boton = document.getElementById("btnAbrirGalleta");
     const loading = document.getElementById("loadingText");
@@ -143,8 +175,10 @@ document.getElementById("btnAbrirGalleta").addEventListener("click", function ()
             method: "POST",
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
 
             setTimeout(function () {
 
@@ -156,24 +190,29 @@ document.getElementById("btnAbrirGalleta").addEventListener("click", function ()
                 galleta.style.fontSize = "180px";
 
                 if (data.success) {
-                  const mensaje = document.getElementById("mensajeFortuna");
 
-mensaje.style.transition = "opacity 0.5s ease";
-mensaje.style.opacity = "0";
-document.getElementById("mensajeFavorito").value = data.mensaje;
-document.getElementById("formFavorito").style.display = "block";
-document.getElementById("btnCompartir").style.display = "inline-block";
-setTimeout(function () {
+                    const mensajeElemento = document.getElementById("mensajeFortuna");
 
+                    mensajeElemento.style.transition = "opacity 0.5s ease";
+                    mensajeElemento.style.opacity = "0";
 
-mensaje.innerText =
-    '"' + data.mensaje + '"';
+                    setTimeout(function () {
+                        mensajeElemento.innerText = '"' + data.mensaje + '"';
+                        mensajeElemento.style.opacity = "1";
+                    }, 300);
 
-mensaje.style.opacity = "1";
+                    const mensajeFavorito = document.getElementById("mensajeFavorito");
+                    const formFavorito = document.getElementById("formFavorito");
+                    const btnCompartir = document.getElementById("btnCompartir");
 
+                    if (mensajeFavorito && formFavorito) {
+                        mensajeFavorito.value = data.mensaje;
+                        formFavorito.style.display = "block";
+                    }
 
-}, 300);
-
+                    if (btnCompartir) {
+                        btnCompartir.style.display = "inline-block";
+                    }
 
                     document.getElementById("fechaFortuna").innerHTML =
                         "<strong>Fecha y hora de apertura:</strong><br>" + data.fecha;
@@ -182,8 +221,11 @@ mensaje.style.opacity = "1";
                         data.clima;
 
                     weatherBox.style.display = "block";
+
+                    lanzarConfetti(130);
+
                 } else {
-                    alert(data.message);
+                    mostrarToast(data.message);
                 }
 
                 boton.disabled = false;
@@ -192,9 +234,10 @@ mensaje.style.opacity = "1";
             }, 1200);
         })
         .catch(function () {
+
             clearInterval(animacion);
 
-            alert("Error al abrir la galleta.");
+            mostrarToast("❌ Error al abrir la galleta");
 
             galleta.innerText = "🥠";
             galleta.style.left = "0px";
@@ -217,38 +260,77 @@ mensaje.style.opacity = "1";
     } else {
         enviarPeticion();
     }
-
 });
 
-document.getElementById("btnCompartir").addEventListener("click", function(){
+const botonCompartir = document.getElementById("btnCompartir");
 
-    const mensaje =
-        document.getElementById("mensajeFortuna")
-        .innerText
-        .replace(/"/g,"");
+if (botonCompartir) {
+    botonCompartir.addEventListener("click", function(){
 
-    const texto =
+        const mensaje = document
+            .getElementById("mensajeFortuna")
+            .innerText
+            .replace(/"/g, "");
+
+        const texto =
 `🥠 Mi fortuna de hoy
 
 "${mensaje}"
 
 Generado con Galleta Fortuna Pro`;
 
-    navigator.clipboard.writeText(texto)
-        .then(function(){
+        navigator.clipboard.writeText(texto)
+            .then(function(){
+                mostrarToast("✅ Fortuna copiada al portapapeles");
+                lanzarConfetti(80);
+            })
+            .catch(function(){
+                mostrarToast("❌ No fue posible copiar la fortuna");
+            });
+    });
+}
 
-            alert("✅ ¡Fortuna copiada al portapapeles!");
+const darkToggle = document.getElementById("darkToggle");
 
-        })
-        .catch(function(){
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
 
-            alert("No fue posible copiar la fortuna.");
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
 
-        });
-
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
 });
 </script>
 
+<script src="js/toast.js"></script>
+
+<?php if (isset($_SESSION["toast_success"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_success"]); ?>,
+    "success"
+);
+</script>
+<?php unset($_SESSION["toast_success"]); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["toast_error"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_error"]); ?>,
+    "error"
+);
+</script>
+<?php unset($_SESSION["toast_error"]); ?>
+<?php endif; ?>
 
 </body>
 </html>

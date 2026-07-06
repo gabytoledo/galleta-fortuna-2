@@ -17,6 +17,9 @@ if (isset($_SESSION["usuario_id"])) {
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
 
 <div class="container">
 
@@ -49,6 +52,27 @@ if (isset($_SESSION["usuario_id"])) {
     </p>
 
 </div>
+<script>
+const darkToggle = document.getElementById("darkToggle");
 
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
+
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
+});
+
+</script>
+<script src="js/toast.js"></script>
 </body>
 </html>

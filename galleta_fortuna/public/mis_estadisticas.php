@@ -17,7 +17,13 @@ $topMensajes = $historialRepository->obtenerTopMensajesUsuario($usuarioId);
 
 $diasConAperturas = $historialRepository->obtenerDiasConAperturas($usuarioId);
 $rachaActual = StreakService::calcularRacha($diasConAperturas);
+$actividad = $historialRepository->obtenerActividadUltimosDias($usuarioId, 30);
 
+$actividadPorFecha = [];
+
+foreach ($actividad as $dia) {
+    $actividadPorFecha[$dia["fecha"]] = (int)$dia["total"];
+}
 $logros = AchievementService::obtenerLogros($totalAperturas);
 ?>
 
@@ -32,6 +38,9 @@ $logros = AchievementService::obtenerLogros($totalAperturas);
 </head>
 
 <body class="historial-page">
+    <button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
 
 <div class="container">
 
@@ -98,7 +107,49 @@ $logros = AchievementService::obtenerLogros($totalAperturas);
     </div>
 
     <hr>
+<hr>
 
+<h2>Calendario de actividad</h2>
+
+<div class="activity-calendar">
+    <?php for ($i = 29; $i >= 0; $i--): ?>
+        <?php
+        $fecha = new DateTime();
+        $fecha->modify("-{$i} days");
+
+        $clave = $fecha->format("Y-m-d");
+        $totalDia = $actividadPorFecha[$clave] ?? 0;
+
+        if ($totalDia === 0) {
+            $nivel = "level-0";
+        } elseif ($totalDia <= 2) {
+            $nivel = "level-1";
+        } elseif ($totalDia <= 5) {
+            $nivel = "level-2";
+        } elseif ($totalDia <= 9) {
+            $nivel = "level-3";
+        } else {
+            $nivel = "level-4";
+        }
+        ?>
+
+        <div
+            class="activity-day <?php echo $nivel; ?>"
+            title="<?php echo htmlspecialchars($fecha->format("d/m/Y") . " - " . $totalDia . " galletas"); ?>"
+        ></div>
+
+    <?php endfor; ?>
+</div>
+
+<div class="activity-legend">
+   
+    <div class="activity-day level-0"></div>
+    <div class="activity-day level-1"></div>
+    <div class="activity-day level-2"></div>
+    <div class="activity-day level-3"></div>
+    <div class="activity-day level-4"></div>
+    
+</div>
     <h2>Mis mensajes más frecuentes</h2>
 
     <?php if (empty($topMensajes)): ?>
@@ -157,7 +208,52 @@ new Chart(document.getElementById("chartMisMensajes"), {
         }
     }
 });
+
+
+
+
+const darkToggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
+
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
+});
 </script>
+<?php endif; ?>
+
+<script src="js/toast.js"></script>
+
+
+<?php if (isset($_SESSION["toast_success"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_success"]); ?>,
+    "success"
+);
+</script>
+<?php unset($_SESSION["toast_success"]); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["toast_error"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_error"]); ?>,
+    "error"
+);
+</script>
+<?php unset($_SESSION["toast_error"]); ?>
 <?php endif; ?>
 
 </body>

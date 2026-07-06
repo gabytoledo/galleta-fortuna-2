@@ -226,6 +226,26 @@ new Chart(document.getElementById("chartUsuarios"), {
     }
 });
 </script>
+<script src="js/toast.js"></script>
 
+<?php if (isset($_SESSION["toast_success"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_success"]); ?>,
+    "success"
+);
+</script>
+<?php unset($_SESSION["toast_success"]); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["toast_error"])): ?>
+<script>
+mostrarToast(
+    <?php echo json_encode($_SESSION["toast_error"]); ?>,
+    "error"
+);
+</script>
+<?php unset($_SESSION["toast_error"]); ?>
+<?php endif; ?>
 </body>
 </html>

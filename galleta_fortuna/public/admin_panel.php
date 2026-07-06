@@ -20,7 +20,9 @@ $galletas = $fortuneService->obtenerTodasLasGalletas();
 </head>
 
 <body>
-
+<button type="button" id="darkToggle" class="dark-toggle">
+    🌙
+</button>
 <div class="container">
 
     <h1>Panel de Administración</h1>
@@ -103,9 +105,9 @@ $galletas = $fortuneService->obtenerTodasLasGalletas();
                 <div class="galleta-item"
                      style="border:1px solid #ccc;padding:10px;margin-bottom:10px;border-radius:8px;">
 
-                    <p>
-                        <?php echo htmlspecialchars($galleta["texto"]); ?>
-                    </p>
+                   <p class="galleta-texto">
+                 <?php echo htmlspecialchars($galleta["texto"]); ?>
+                </p>
 
                     <a href="editar_galleta.php?id=<?php echo (int)$galleta["id"]; ?>">
                         <button type="button">
@@ -164,14 +166,26 @@ $galletas = $fortuneService->obtenerTodasLasGalletas();
          Volver al inicio
     </a>
 
+
+
+    <br><br>
+
+<a href="salud_sistema.php">
+    🖥 Ver salud del sistema
+</a>
+
 </div>
 
 <script>
-
 const buscador = document.getElementById("buscadorGalletas");
 const galletas = document.querySelectorAll(".galleta-item");
 const contador = document.getElementById("contadorBusqueda");
 const sinResultados = document.getElementById("sinResultados");
+
+function escaparRegex(texto)
+{
+    return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function actualizarBusqueda()
 {
@@ -181,18 +195,34 @@ function actualizarBusqueda()
 
     galletas.forEach(function(galleta){
 
-        const contenido = galleta.innerText.toLowerCase();
+        const parrafo = galleta.querySelector(".galleta-texto");
+        const textoOriginal = parrafo.textContent;
+        const contenido = textoOriginal.toLowerCase();
 
         if(contenido.includes(texto))
         {
             galleta.style.display = "block";
             visibles++;
+
+            if(texto !== "")
+            {
+                const regex = new RegExp("(" + escaparRegex(texto) + ")", "gi");
+
+                parrafo.innerHTML = textoOriginal.replace(
+                    regex,
+                    "<mark>$1</mark>"
+                );
+            }
+            else
+            {
+                parrafo.textContent = textoOriginal;
+            }
         }
         else
         {
             galleta.style.display = "none";
+            parrafo.textContent = textoOriginal;
         }
-
     });
 
     contador.innerHTML =
@@ -202,21 +232,50 @@ function actualizarBusqueda()
         galletas.length +
         "</strong> galletas";
 
-    if(visibles === 0)
-    {
-        sinResultados.style.display = "block";
-    }
-    else
-    {
-        sinResultados.style.display = "none";
-    }
+    sinResultados.style.display = visibles === 0 ? "block" : "none";
 }
 
 buscador.addEventListener("input", actualizarBusqueda);
-
 actualizarBusqueda();
 
+<?php if (isset($_SESSION["admin_success"])): ?>
+<script>
+mostrarToast("<?php echo htmlspecialchars($_SESSION["admin_success"]); ?>", "success");
 </script>
+<?php unset($_SESSION["admin_success"]); ?>
+<?php endif; ?>
 
+<?php if (isset($_SESSION["admin_error"])): ?>
+<script>
+mostrarToast("<?php echo htmlspecialchars($_SESSION["admin_error"]); ?>", "error");
+</script>
+<?php unset($_SESSION["admin_error"]); ?>
+<?php endif; ?>
+
+
+
+const darkToggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("modoOscuro") === "activo") {
+    document.body.classList.add("dark-mode");
+    darkToggle.innerText = "☀️";
+}
+
+darkToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("modoOscuro", "activo");
+        darkToggle.innerText = "☀️";
+    } else {
+        localStorage.setItem("modoOscuro", "inactivo");
+        darkToggle.innerText = "🌙";
+    }
+});
+
+
+
+</script>
+<script src="js/toast.js"></script>
 </body>
 </html>

@@ -80,6 +80,22 @@ public function obtenerUltimaActividad(): ?array
 
     return $resultado ?: null;
 }
+public function obtenerRankingCompleto(): array
+{
+    $sql = "SELECT 
+                u.id,
+                u.nombre,
+                COUNT(h.id) AS total
+            FROM usuarios u
+            LEFT JOIN historial_galletas h 
+                ON u.id = h.usuario_id
+            GROUP BY u.id, u.nombre
+            ORDER BY total DESC";
 
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 }

@@ -42,4 +42,18 @@ class FavoritoRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function contarPorUsuario(int $usuarioId): int
+{
+    $sql = "SELECT COUNT(*) FROM favoritos WHERE usuario_id = :usuario_id";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ":usuario_id" => $usuarioId
+    ]);
+
+    return (int)$stmt->fetchColumn();
+}
+
+
 }

@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . "/../app/core/SessionManager.php";
-SessionManager::start();
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.php");
-    exit;
-}
 
-$historial = $_SESSION["historial_galletas"] ?? [];
+require_once __DIR__ . "/../app/core/SessionManager.php";
+SessionManager::requireLogin();
+
+require_once __DIR__ . "/../app/repositories/EstadisticaRepository.php";
+
+$estadisticaRepository = new EstadisticaRepository();
+$ranking = $estadisticaRepository->obtenerTopUsuarios();
 ?>
 
 <!DOCTYPE html>
@@ -15,47 +15,48 @@ $historial = $_SESSION["historial_galletas"] ?? [];
     <link rel="icon" type="image/x-icon" href="favicon.jpg">
     <link rel="stylesheet" href="css/style.css">
     <meta charset="UTF-8">
-    <title>Historial de galletas</title>
+    <title>Ranking</title>
 </head>
 <body class="historial-page">
-
-
 <button type="button" id="darkToggle" class="dark-toggle">
     🌙
 </button>
-<br>
-
-
- 
 <div class="container">
 
-    <h1>Historial de galletas abiertas</h1>
+    <h1>🏆 Ranking de usuarios</h1>
 
-    <?php if (empty($historial)): ?>
-
-        <p>Todavía no abriste ninguna galleta.</p>
-
+    <?php if (empty($ranking)): ?>
+        <p>Todavía no hay datos suficientes.</p>
     <?php else: ?>
 
         <table border="1" cellpadding="10" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Fecha y hora</th>
-                    <th>Mensaje</th>
+                    <th>Puesto</th>
+                    <th>Usuario</th>
+                    <th>Aperturas</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($historial as $item): ?>
+                <?php foreach ($ranking as $index => $usuario): ?>
                     <tr>
                         <td>
                             <?php
-                            $fecha = new DateTime($item["fecha_apertura"]);
-                            echo htmlspecialchars($fecha->format("d/m/Y H:i:s"));
+                            $puesto = $index + 1;
+
+                            if ($puesto === 1) {
+                                echo "🥇 1";
+                            } elseif ($puesto === 2) {
+                                echo "🥈 2";
+                            } elseif ($puesto === 3) {
+                                echo "🥉 3";
+                            } else {
+                                echo (int)$puesto;
+                            }
                             ?>
                         </td>
-                        <td>
-                            <?php echo htmlspecialchars($item["mensaje"]); ?>
-                        </td>
+                        <td><?php echo htmlspecialchars($usuario["nombre"]); ?></td>
+                        <td><?php echo (int)$usuario["total"]; ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -63,37 +64,9 @@ $historial = $_SESSION["historial_galletas"] ?? [];
 
     <?php endif; ?>
 
-
-    <a href="exportar_historial_csv.php">
-    <button type="button">
-        ⬇ Descargar historial CSV
-    </button>
-</a>
-
-<br><br>
-
-
-    <a href="exportar_historial_pdf.php">
-    <button type="button">
-        📄 Exportar historial PDF
-    </button>
-</a>
-
-<br><br>
-
-
-
-    
+    <br>
 
     <a href="home.php">Volver al inicio</a>
-
-    <br><br>
-
-    <a href="fortune.php">Volver a la galleta</a>
-
-    <br><br>
-
-    <a href="logout.php">Cerrar sesión</a>
 
 </div>
 <script>
@@ -116,9 +89,7 @@ darkToggle.addEventListener("click", function () {
     }
 });
 
-
 </script>
-
 <script src="js/toast.js"></script>
 
 <?php if (isset($_SESSION["toast_success"])): ?>
